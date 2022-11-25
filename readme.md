@@ -129,3 +129,60 @@ Structure:
 <li>Triggers e.g. API gateway
 <li>Configuration e.g execution timeout, memory requirements or IAM role required.
 </ol>
+
+#### Dynamo DB
+
+NoSQL storage of data.
+Benefits:
+
+<ul>
+<li>Unlimited, elastic storage
+<li>No hardware choices
+<li>Pay only for what you use
+</ul>
+
+Data is stored in a table as database is abstracted.
+DynamoDB provides a **provisioned throughput capacity** which is outlined below:
+`provisioned throughput capacity = Number of read/write units per second`
+The provisioned throughput capacity is used to correctly size the database.
+Even with a small provisioned throughput capacity, there is still extremely fast performance.
+
+#### VPC (Virtual Private Cloud)
+
+Provision components in a secure location, making it easy to secure a group of components e.g. EC2 instances and Dynamo DB's.
+Whilst security groups secure individual instances, a VPC secures a group of instances.
+Inside a VPC there are subnets in which resources can be grouped further.
+Each subnet can have different access rules.
+Multiple subnets are often used for public and private subnets to restrict some resources more than others.
+How to control access to resources?
+
+<ul>
+<li>Routing Table - Control what goes where (e.g route outbound traffic to a NAT gateway to mask the IP).
+<li>ACL (Access control list) - Subnet level firewalls (e.g. prevent IP ranges from accessing information)
+</ul>
+
+Basic configuration for a VPC is free, and helps to provide multiple levels of security.
+
+#### CloudWatch
+
+A monitoring service which can alert or alarm based on metrics for Amazon services.
+Can give a notification or autoscale the EC2 instances.
+Logs can be used to trigger notifications e.g. a certain error occurs a set number of times.
+Dashboards can be setup to view the metrics.
+
+#### CloudFront
+
+Content Delivery network which caches data at edge locations.
+Reduces latency and enables global access to content.
+How to setup:
+
+<ul>
+<li>Create a cloudfront distribution
+<li>Each distribution defines a set of content to be served e.g. images
+<li>Specify original location e.g. S3 bucket
+<li>Unique cloudfront URL assigned to the distribution, this URL will be used to access content.
+<li>On a distribution configuration includes: Allowed HTTP methods, Edge locations and SSl certificates.
+<li>Pricing based on start and edge locations
+</ul>
+
+### Harnessing the power of AWS from Command line to code
