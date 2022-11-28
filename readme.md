@@ -461,3 +461,39 @@ This is complete by enabling stickiness on the load balancer via the 'Target Gro
 Enter the 'attributes' section and select 'Stickiness'.
 
 ##### Creating an Auto-Scaling Group
+
+Involves setting up a launch template and then the auto-scaling group.
+Creating launch template:
+
+<ol>
+<li>Select name for launch template
+<li>Select AMI, ideally a snapshot of an instance
+<li>Select instance type used already, or other if improving or decreasing
+<li>Option to select SSH keys, not used in production but useful for troubleshooting in test
+<li>Select VPC with security group already created
+<li>In advanced details -> User data: we can write scripts
+<li>For example: npm start. To start the application
+</ol>
+
+Create auto-scaling group:
+
+<ol>
+<li>Select name and launch template created previously
+<li>Select VPC being used for instance in network section
+<li>Select available subnets in VPC to balance load across both
+<li>Select load balancer created previously
+<li>Set desired, minimum and maximum capacity's
+<li>Setup Scaling Policy to scale based on metrics
+<li>An example metric is the network traffic with a target value that can be tweaked in the future based on demand
+<li>Create auto-scaling group
+<li>To access the load balancer in browser -> Load Balancers -> Specific load balancer -> DNS name
+<li>Aim would be to setup a domain name and route any requests to the DNS name of the load balancer to route traffic
+<li>For security we can edit 'inbound rules' for instances to ensure they only accept traffic from the load balancer
+<li>Setup the security group of the load balancer in the 'Source' option
+</ol>
+
+##### Testing requests
+
+Open in browser, deleting cache and re-entering
+JMeter or Apache Benchmark to simulate load balancing and trigger scaling
+We can use activity history in AWS to view the scaling in practice
