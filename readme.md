@@ -21,11 +21,12 @@ Amazon marketplace provides additional AMI's.
 <li>Select Instance Type size e.g. small, medium, large.
 <li>Select number of instances to replicate, same image and type.
 Creates an auto-scaling group which increases or decreases the number of instances based on the usage.
-<li>Select storage type e.g. EBS (Elastic block storage)
-<li>Option of setting tags/labels
+<li>Select storage type e.g. EBS (Elastic block storage) and size
+<li>Option of setting tags/labels. Very useful for shared groups e.g. project members
 <li>Configure Security Group, controlling IPs that instance talk to/from.
-Example, only enable SSH sessions from current IP address.
+Example, only enable SSH sessions from current IP address. This would be expected in production.
 Set inbound and outbound rules on the instance.
+<li>In configuring security group, also open port that application will be running on. Set port in port range when creating a new Rule to accomplish this.
 <li>Set a key pair, enabling SSH within the instance.
 Can create new or use existing.
 </ol>
@@ -186,3 +187,277 @@ How to setup:
 </ul>
 
 ### Harnessing the power of AWS from Command line to code
+
+#### Software Development Kit
+
+Code which makes it easy to interact with Amazon web services.
+Each is open source and hosted on AWS github.
+Nothing special, wraps HTTP requests to AWS services making it easier to use.
+Examples:
+
+<ul>
+<li>Modify cloudwatch rules
+<li>Invalidate Cloudfront distribution (remove file from cache)
+<li>Read/Write to RDS
+</ul>
+
+#### Command Line Interface
+
+Interact with AWS resources from the command line.
+Useful for shell scripts.
+Commands look like:
+`aws <service> <command> <arguments>`
+
+Easy installation, then adding access keys as an initial step.
+Useful for:
+
+<ul>
+<li>Quick running of tasks with little overhead
+<li>Automation tasks
+<li>Shell scripts
+</ul>
+
+## AWS Developer getting started
+
+### Welcome to AWS
+
+#### Differences
+
+Main difference is that AWS has single responsibility rather than one large application.
+Many different services are used in an entire application.
+Database becomes a service rather than port in same application.
+Each service in AWS has a local IP address which is used to communicate with other services.
+Communication often done via TCP.
+Resources also have an ID which can be used in place of IP.
+
+#### Pizza example
+
+Application Hosting - EC2
+Images and Assets - S3 storage
+Users - Dynamo DB
+Sessions - ElastiCache
+Toppings - DynamoDB
+Pizza (Combination of toppings) - RDS
+Image (final pizza image) - S3
+
+### Services
+
+#### Cloudwatch
+
+Set alarms and notifications for event response.
+Example alarm use cases
+
+<ul>
+<li>DynamoDB read/write throughput
+<li>EC2 CPU Usage
+<li>Estimated Billing Charges
+</ul>
+This can help avoid 
+<ul>
+<li>Database failures, data access may be too slow for demand.
+<li>EC2 systems reaching capacity, stopping an application being served.
+<li>A large bill, above a specified budget.
+</ul>
+
+CloudWatch also provides actions in relation to events.
+Consider the EC2 CPU Usage reaching too high a capacity, auto-scaling can ensure another instance is launched.
+
+#### Simple Notification Service
+
+Companion to CloudWatch, alerts can be pushed to endpoints.
+Works as below:
+
+<ol>
+<li>Topic is created in region 1, enabling AWS events to be pushed
+<li>SMS or Email consume the topic
+<li>Notification pushed to a topic by cloudwatch event in region 1
+<li>Topic forwards notification to endpoints (SMS, Email)
+</ol>
+
+#### Creating a Billing Alarm
+
+<ol>
+<li>Create a SNS topic e.g. billing
+<li>Create a subscriber to the topic, e.g. email 
+<li>Toggle 'Receive billing alerts' to 'On' in Billing Preferences
+<li>Select metrics for billing
+<li>Select Conditions - Amount before threshold is reached
+<li>Alarm state trigger - Set reason for alarm trigger e.g. Outside Threshold or Insufficient Data
+<li>Set SNS topic, e.g. billing
+<li>If required, set actions on EC2 instances [not important for billing]
+<li>Name alarm with description for future reference
+<li>Create after viewing preview
+</ol>
+
+#### IAM
+
+Access Management control
+Usages:
+
+<ul>
+<li>Passwords
+<li>Multi-factor authentication
+<li>Access keys
+<li>SSH keys
+</ul>
+
+A policy is often used to control access, resource or type level.
+A policy can be attached to specific users or groups (e.g. developers).
+Multi-Factor authentication can be enforced to improve security.
+
+##### Policies
+
+By default a user has zero policies.
+A policy is a set of rules to enable access.
+A policy statement has 3 properties to give or restrict access:
+
+<ul>
+<li>Effect: 'Allow' or 'Deny'
+<li>Action: Operation user can perform based on service
+<li>Resource: Specific resources a user can perform action(s) on
+</ul>
+
+There are standard AWS policies but user's can setup bespoke policies too.
+Example custom policy = Give a user access to a specific resource only.
+
+##### Groups
+
+Amazon policies are suggested to be applied to groups instead of individual users.
+Users can be in multiple groups.
+Users can be added in the IAM dashboard, it is suggested in AWS to have a separate account to the root user.
+A password can be assigned or manually created for a new user, and a setting enables creating a new one upon login.
+The user will be given a URL to login to AWS, rather than traditional links.
+Creating a group:
+
+<ol>
+<li>Name group
+<li>Add initial user(s) to the group
+<li>Attach permission policies (AWS managed or Custom)
+<li>Suggestion = Follow least privilege
+<li>Useful Amazon group = Power User (full access to services but not user and group management)
+</ol>
+
+#### EC2 and VPC
+
+##### VPC
+
+Used to isolate services from other AWS services and the outside world.
+Connections can be made between VPC's within AWS as they have IP addresses assigned.
+VPC's have a Security Group to define incoming and outgoing IP addresses. Acts as a mini-firewall.
+Routing Table: Defines outgoing IP address, helps to create a proxy.
+Network ACL: Defines incoming and outgoing IP address, which is allowed.
+All instances are launched in a subnet, inside a VPC.
+Subnet is isolated and has a CIDR block, routing table, ACL.
+Common to have a private and public subnet.
+Creating a VPC:
+
+<ol>
+<li>Select relevant region
+<li>Select type e.g single public subnet
+<li>Name VPC and select CIDR block (IP range etc)
+<li>Name public subnet and select CIDR block (subset of VPC CIDR block)
+<li>Create VPC
+<li>Routing table will be offline and provides no way to connect to internet by default
+<li>Navigate to Routing table and Routes tab
+<li>Add route for 0.0.0.0/0 for anywhere
+<li>Set target as 'igw' for internet gateway and select option available
+<li>This enables outbound traffic to the internet
+<li>Create more subnets as one subnet is one availability zone
+<li>Add a new public subnet to cover another availability zone in the region via subnet section
+<li>Ensure the CIDR block range is different to previous subnet
+<li>Most secure way is to setup a NAT gateway to connect to the internet
+<li>Another option is to auto-assign public IP addresses to subnets which is much cheaper
+</ol>
+
+##### EC2
+
+A virtual machine provisioned with some CPU, storage etc.
+AMI's can involve your own software being installed to the EC2 instance.
+EBS = Elastic Block Store. Enables storage of instances to live independently to EC2 instance itself.
+EBS enables termination of an instance and rebooting to not lose data.
+Launching instance: [Starting instance](#starting-an-instance)
+
+##### Connecting to EC2 Instance
+
+Initially, there will be no public endpoint to connect to the EC2 instance from outside the VPC.
+Elastic IP will need to be created, an elastic IP is a public IP address that is created, assigned and destroyed independently.
+The Elastic IP can be associated with an instance, and once one instance is deleted can be associated with another:
+
+<ol>
+<li>Create a new Elastic IP address
+<li>Associate with an EC2 instance
+<li>Use Elastic IP address to communicate to EC2 instance
+</ol>
+
+Connect via SSH like below:
+
+```
+//Save the SSH access keys
+chmod 400 ~/Downloads/pizza-keys.pem
+//Connect to instance using SSH key file and Elastic IP
+ssh -i <pem-file> ec2-user@<ec2-ip>
+```
+
+##### Updating and Deploying to an instance
+
+`sudo yum update` common command to update the instance.
+Once connected to EC2 instance, can install data e.g. Node.js and npm
+SCP can be used to transfer files to the EC2 instance, such as an application
+Command to transfer:
+
+```
+scp -r -i <pem_file> <local_code_to_transfer> ec2-user@<ec2_ip>:home/ec2-user
+```
+
+The local code can then be navigated to, actions such as 'npm install' and 'npm start' can be used to download and run the code.
+The elastic ip can be used to access the running web app in a browser e.g. `<ec2_elastic_ip>:3000`
+
+##### Scaling EC2 instances
+
+With custom AMI's an EC2 instance can be saved as a snapshot and replicated.
+Snapshots can be used in place of a linux instance and can launch the instance + npm dependencies for example.
+Auto-Scaling group is preferred as it avoids creating new instances often.
+A launch template + scaling rules are used to expand and decrease a pool of instances based upon load.
+A load balancer is used to manage incoming requests to an instance and direct the request to an active instance in the pool.
+
+##### Creating a Snapshot
+
+<ol>
+<li>Navigate to the EC2 instance you want to replicate
+<li>Actions > Image and templates > Create image
+<li>Modify size or other parameters if necessary
+<li>Create AMI, this takes several minutes before being usable
+<li>Launch a new instance and select 'My AMIs' to view the snapshot created
+</ol>
+
+##### Creating a Load Balance
+
+There are 3 types:
+
+<ul>
+<li>Application: Web applications for HTTP and HTTPS
+<li>Network: TCP and UDP, possibly for video streaming
+<li>Classic: Older type and less relevant
+</ul>
+
+Creating a load balancer for an application:
+
+<ol>
+<li>Name load balancer
+<li>Select if internet facing or not
+<li>Select which ports to listen on (80 for HTTP, 443 for HTTPS)
+<li>Select the VPC for the load balancer
+<li>Select 2 availability zones, same as the subnets in the VPC
+<li>Use existing or create new security group
+<li>Configure routing, enable routing to an Instance
+<li>Select protocol and internet facing port for the instance (e.g 3000)
+<li>Configure health check to ensure instance is up, example is the root homepage of a web app
+<li>Register targets - select which instances to register from the list
+<li>The list is based upon the port and protocol entered in the previous page
+</ol>
+
+Need to manage sessions, ensure user connects to the same instance after logging in.
+This is complete by enabling stickiness on the load balancer via the 'Target Group' header.
+Enter the 'attributes' section and select 'Stickiness'.
+
+##### Creating an Auto-Scaling Group
