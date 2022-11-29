@@ -305,7 +305,7 @@ A policy is often used to control access, resource or type level.
 A policy can be attached to specific users or groups (e.g. developers).
 Multi-Factor authentication can be enforced to improve security.
 
-##### Policies
+#### Policies
 
 By default a user has zero policies.
 A policy is a set of rules to enable access.
@@ -320,7 +320,7 @@ A policy statement has 3 properties to give or restrict access:
 There are standard AWS policies but user's can setup bespoke policies too.
 Example custom policy = Give a user access to a specific resource only.
 
-##### Groups
+#### Groups
 
 Amazon policies are suggested to be applied to groups instead of individual users.
 Users can be in multiple groups.
@@ -337,9 +337,9 @@ Creating a group:
 <li>Useful Amazon group = Power User (full access to services but not user and group management)
 </ol>
 
-#### EC2 and VPC
+### EC2 and VPC
 
-##### VPC
+#### VPC
 
 Used to isolate services from other AWS services and the outside world.
 Connections can be made between VPC's within AWS as they have IP addresses assigned.
@@ -369,7 +369,7 @@ Creating a VPC:
 <li>Another option is to auto-assign public IP addresses to subnets which is much cheaper
 </ol>
 
-##### EC2
+#### EC2
 
 A virtual machine provisioned with some CPU, storage etc.
 AMI's can involve your own software being installed to the EC2 instance.
@@ -377,7 +377,7 @@ EBS = Elastic Block Store. Enables storage of instances to live independently to
 EBS enables termination of an instance and rebooting to not lose data.
 Launching instance: [Starting instance](#starting-an-instance)
 
-##### Connecting to EC2 Instance
+#### Connecting to EC2 Instance
 
 Initially, there will be no public endpoint to connect to the EC2 instance from outside the VPC.
 Elastic IP will need to be created, an elastic IP is a public IP address that is created, assigned and destroyed independently.
@@ -398,7 +398,7 @@ chmod 400 ~/Downloads/pizza-keys.pem
 ssh -i <pem-file> ec2-user@<ec2-ip>
 ```
 
-##### Updating and Deploying to an instance
+#### Updating and Deploying to an instance
 
 `sudo yum update` common command to update the instance.
 Once connected to EC2 instance, can install data e.g. Node.js and npm
@@ -412,7 +412,7 @@ scp -r -i <pem_file> <local_code_to_transfer> ec2-user@<ec2_ip>:home/ec2-user
 The local code can then be navigated to, actions such as 'npm install' and 'npm start' can be used to download and run the code.
 The elastic ip can be used to access the running web app in a browser e.g. `<ec2_elastic_ip>:3000`
 
-##### Scaling EC2 instances
+#### Scaling EC2 instances
 
 With custom AMI's an EC2 instance can be saved as a snapshot and replicated.
 Snapshots can be used in place of a linux instance and can launch the instance + npm dependencies for example.
@@ -420,7 +420,7 @@ Auto-Scaling group is preferred as it avoids creating new instances often.
 A launch template + scaling rules are used to expand and decrease a pool of instances based upon load.
 A load balancer is used to manage incoming requests to an instance and direct the request to an active instance in the pool.
 
-##### Creating a Snapshot
+#### Creating a Snapshot
 
 <ol>
 <li>Navigate to the EC2 instance you want to replicate
@@ -430,7 +430,7 @@ A load balancer is used to manage incoming requests to an instance and direct th
 <li>Launch a new instance and select 'My AMIs' to view the snapshot created
 </ol>
 
-##### Creating a Load Balance
+#### Creating a Load Balance
 
 There are 3 types:
 
@@ -460,7 +460,7 @@ Need to manage sessions, ensure user connects to the same instance after logging
 This is complete by enabling stickiness on the load balancer via the 'Target Group' header.
 Enter the 'attributes' section and select 'Stickiness'.
 
-##### Creating an Auto-Scaling Group
+#### Creating an Auto-Scaling Group
 
 Involves setting up a launch template and then the auto-scaling group.
 Creating launch template:
@@ -492,7 +492,7 @@ Create auto-scaling group:
 <li>Setup the security group of the load balancer in the 'Source' option
 </ol>
 
-##### Testing requests
+#### Testing requests
 
 Open in browser, deleting cache and re-entering
 JMeter or Apache Benchmark to simulate load balancing and trigger scaling
