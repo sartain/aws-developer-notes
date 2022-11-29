@@ -497,3 +497,149 @@ Create auto-scaling group:
 Open in browser, deleting cache and re-entering
 JMeter or Apache Benchmark to simulate load balancing and trigger scaling
 We can use activity history in AWS to view the scaling in practice
+
+### S3
+
+Store objects (file and metadata) in S3.
+Metadata includes information such as file type and modification date.
+Object key is the `path/filename.filetype`
+e.g. `images/image.png`
+To access data, S3 or IAM policies can be setup to control access.
+Otherwise, access can be given to specific resources e.g. web resources available to anyone.
+S3 offers cross-region replication, data added or modified is replicated in another region to reduce latency.
+May be useful if main users are in USA and UK.
+If users are in more than 2 locations, a Content Delivery Network like CloudFront should be used instead.
+
+#### Buckets
+
+Buckets are used in S3 to store the objects.
+Each bucket has a URL to access objects with.
+Creating a bucket:
+
+<ol>
+<li>Name the bucket uniquely + select region
+<li>Select public access, private by default
+<li>Create bucket
+<li>Modify bucket permissions, can also modify object permissions
+<li>Setup a bucket policy to enable users to have permission to view objects
+<li>Use Policy Generator to do this
+    <ol>
+    <li>Select policy type
+    <li>Select Principal (who has access)
+    <li>Select Service e.g. S3
+    <li>Select Action e.g. view files
+    <li>Select ARN e.g. bucket name
+    <li>Add more statements or generate policy
+    </ol>
+<li>If public, AWS will have warnings to tell user
+</ol>
+
+#### Uploading Files to buckets
+
+Can use: Console, CLI and SDK.
+CLI useful for bulk upload.
+Command:
+
+```
+aws s3 cp <local_folder> s3://<bucket>/<remote_folder> --recursive --exclude "<pattern>"
+```
+
+With commands `--recursive` copying everything in the directory and `--exclude "<pattern>"` to avoid copying over files.
+E.g.
+
+```
+aws s3 cp ./assets/js s3://pizza-luvrs-a-unique-string-alex/js --recursive --exclude "./DS_Store"
+```
+
+#### Retrieving files from S3 via code
+
+Useful to retrieve URL, can do this by grabbing the URL of an object and removing the object key.
+To modify the CSS of a local directory to AWS follow steps below.
+Original:
+
+```html
+<html>
+  <head>
+    <link rel="stylesheet" href="/assets/css/stylesheet.css" />
+  </head>
+</html>
+```
+
+AWS:
+
+```html
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="//pizza-luvrs-a-unique-string-alex.s3.us-east-2.amazonaws.com/css/stylesheet.css"
+    />
+  </head>
+</html>
+```
+
+#### Uploading files to S3 via code
+
+Add the SDK to Javascript with the components needed
+
+```JS
+const {
+    PutObjectCommand,
+    S3Client
+} = require('@aws-sdk/client-s3')
+```
+
+To upload add code like below with example of uploading an image:
+
+```JS
+const params = {
+    Bucket: 'bucket_name',
+    Key: 'object/objectname.objecttype',
+    Body: Buffer.from(data, 'base64'),
+    ContentEncoding: 'base64',
+    ContentType: 'image/png'
+}
+const client = new S3Client({ region: 'us-east-2' })
+const command = new PutObjectCommand(params)
+await client.send(command)
+```
+
+To retrieve the file URL:
+
+```JS
+return `//pizza-luvrs-a-unique-string-alex.s3.us-east-2.amazonaws.com/${params.Key}`
+```
+
+#### CORS (Cross Origin Resource Sharing)
+
+Need to enable as URL may be different for resources e.g. one folder to another in S3.
+To do this:
+
+<ol>
+<li>Navigate to buckets
+<li>Navigate to permissions
+<li>Navigate to CORS section
+<li>Add a JSON document to enable access
+</ol>
+
+#### Accessing S3 with EC2
+
+Need to assign credentials with EC2 to enable access to S3.
+An example is at the 'Launch Template' adding IAM roles:
+
+<ol>
+<li>Add a role (not a user, something to attach policies to)
+<li>When creating the role, select the service to use (e.g. EC2)
+<li>Attach a policy related to use case, focus on Least-Privilege
+<li>Name and create the role
+</ol>
+
+Modify launch template
+
+<ol>
+<li>Navigate to existing template -> Actions -> Modify
+<li>Advanced Details -> IAM Instance Profile
+<li>Select the IAM Role like the one created above
+<li>Ensure auto-scaling group is using most-recent or latest launch template to enable the new launch template to be used
+<li>Another option (if 'default' on auto-scaling group) is to modify launch template to 'Default' version
+</ol>
