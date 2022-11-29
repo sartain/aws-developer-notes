@@ -643,3 +643,192 @@ Modify launch template
 <li>Ensure auto-scaling group is using most-recent or latest launch template to enable the new launch template to be used
 <li>Another option (if 'default' on auto-scaling group) is to modify launch template to 'Default' version
 </ol>
+
+### Databases
+
+Benefits for databases include:
+
+<ul>
+<li>Improved scalability, serve many customers without using large amounts of memory
+<li>Persistence, avoid losing information after sessions
+</ul>
+
+#### RDS
+
+Relational databases which run on EC2 instances and have Amazon responsible for configuration etc.
+Amazon help do:
+
+<ul>
+<li>Software upgrades
+<li>Nightly database backups, configurable and can be stored from 1-35 days
+<li>Ability to restore a database from a backup
+<li>Monitoring
+<li>Simple creation and configuration options
+<li>Availability - Multi Availability zones can be used to replicate the data
+<li>Automatic failover, if one availability zone fails the other can be used
+</ul>
+
+##### Read Replica
+
+A non-production copy of the database available to run queries and analyse the data without impacting production.
+There is eventual consistency with the source but not used as a fail safe.
+
+#### Choosing an RDS Option
+
+Can consider which database is used locally e.g. SQL, there are options in AWS to migrate to Aurora with lower costs.
+
+#### Creating an Instance
+
+<ol>
+<li>Select standard or easy create, easy removes some options
+<li>Select engine e.g Amazon Aurora or PostgreSQL and version
+<li>Select sample template e.g. Production or Test
+<li>Set name for database instance
+<li>Set master login & password to access the database
+<li>Set storage, with option of storage being increase up to a threshold
+<li>Set connectivity e.g. VPC to place database
+<li>Set public access (No for production)
+<li>Set a VPC Security Group for the database to control access
+<li>Ensure security group enables communication to the database
+<li>Add a database in the Additional Configuration section
+<li>Create database
+</ol>
+
+#### Connecting to a database
+
+For PostgreSQL via pgAdmin:
+
+<ol>
+<li>Add new server to create a new connection
+<li>Grab 'Endpoint' from 'Endpoint and Security' section after navigation to relevant database
+<li>Paste value in 'Host' section of 'Connection' tab
+<li>Enter username and password setup when creating the DB
+<li>
+</ol>
+
+#### Interacting with RDS
+
+Connect to the database as you would normally, using the AWS URL and credentials to access.
+Common to use a ORM library to convert data to objects and avoid writing SQL code to remove risk of vulnerabilites.
+`Sequelize` can be used for JS.
+
+#### Dynamo DB
+
+NoSQL solution for databases in AWS.
+Main structure:
+
+<ul>
+<li>Table
+<li>Items within a table
+<li>Primary Key (same for each item in a table)
+</ul>
+
+The provisioned throughput capacity, reads and writes for 4kb files, can be modified at any time.
+Additional features:
+
+<ul>
+<li>On-demand capacity mode. Table capacity scales as needed, priced per table or index request [expensive]
+<li>Provisioned capacity auto-scaling mode. Increase or decrease capacity based on rules (like auto-balancer)
+</ul>
+
+Both options enable to option of using On-Demand and as you understand database size, ability to change.
+
+#### Relational or not?
+
+RDS provides structured schemas for storing data.
+Dynamo DB is much more flexible with how the data looks.
+New fields can be added any time in Dynamo DB, speeding up development time and iteration.
+RDS is much better for querying data and filtering based on values.
+Dynamo DB is useful if only using a primary key to retrieve values, using other properties is difficult.
+
+#### Creating a table in DynamoDB
+
+<ol>
+<li>Set table name
+<li>Set Partition [Primary] key and type
+<li>Use default settings or custom
+<li>
+</ol>
+
+#### Connecting to DynamoDB table
+
+The AWS SDK is required to connect to the dynamoDB table.
+Example of loading SDK:
+
+```Node
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb")
+```
+
+The client helps to marshall and unmarshall data into JSON.
+
+```JavaScript
+const marshallOptions = {
+    convertClassInstanceToMap = true
+}
+```
+
+Add SDK values for updating the DB:
+
+```JavaScript
+const {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  ScanCommand,
+} = require("@aws-sdk-lib-dynamodb")
+```
+
+Setup client:
+
+```JavaScript
+const client = new DynamoDBClient({region: 'us-east-2'})
+DynamoDBDocumentClient.from(client, { marshallOptions })
+```
+
+Sending a PUT:
+
+```JavaScript
+const params = {
+    TableName: "table_name",
+    Item: "item"
+}
+const client = //same as above
+const command = new PutCommand(params)
+await client.send(command)
+```
+
+Retrieving all items:
+This is often paginated as there is a 1MB limit, the example has no pagination.
+
+```JavaScript
+const params = {
+    TableName: "table_name"
+}
+const client = //same as above
+const command = new ScanCommand(params)
+const response = await client.send(command)
+return response.Items
+```
+
+Retrieving a specific item:
+The idKey is the key value name, with idValue being the specific value.
+
+```JavaScript
+const params = {
+    TableName: "table_name",
+    Key: {
+        [idKey]: idValue
+    }
+}
+const client = //same as above
+const command = new GetCommand(params)
+const response = await client.send(command)
+return response.Items
+```
+
+#### Running on EC2
+
+To run data on the EC2, permission access needs to be set by adding policies on the EC2 instance.
+For an RDS instance, the RDS instance needs to be added to the security group too.
+
+### Elastic Beanstalk and CloudFormation
