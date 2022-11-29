@@ -832,3 +832,93 @@ To run data on the EC2, permission access needs to be set by adding policies on 
 For an RDS instance, the RDS instance needs to be added to the security group too.
 
 ### Elastic Beanstalk and CloudFormation
+
+#### Cloud Formation
+
+A service in AWS to provision resources based on templates.
+Example would be having development and production stacks separately.
+CloudFormation reduces error risk and time spent.
+A CloudFormation template is a JSON document containing the configuration for AWS resources.
+Version control is useful for this.
+
+#### Cloud Formation Stack
+
+A stack can be created, collection of Instances and resources to be created.
+Updating a stack, e.g. increasing size of EC2 instance, can be done without restarting resources if possible.
+Stack can be deleted if no longer needed (deleting all resources).
+
+#### Provisioning Resources
+
+Resources can be provisioned in a template, large YAML document.
+There is a resource section with information representing different resources to be provisioned.
+Each resource can have properties which can be updated.
+Different parts of the document can be referenced using:
+
+```yaml
+!GetAtt MyLaunchTemplate.DefaultVersionNumber
+!Ref MyLaunchTemplate
+```
+
+#### Creating a Stack
+
+<ol>
+<li>Use pre-created template or from scratch
+<li>Upload template file if possible (CloudFormer can form a stack from existing application)
+<li>Name Stack
+<li>Specify stack details - EC2 AMI ID and KeyPair for EC2 instances
+<li>Configure Stack options if required
+<li>Create Stack
+</ol>
+
+A stack can be deleted by navigating to the stack and selecting 'Delete'.
+
+#### Elastic Beanstalk
+
+Automate the deployment of an application.
+Provides: Scaling, Monitoring, Resource Provisioning by uploading application code.
+Elastic Beanstalk is dedicated to running the application - provisioning resources and running the application.
+Components:
+
+<ol>
+<li>A logical application e.g. Web App
+<li>A single platform e.g. Node or Java
+<li>One+ Application version (versions of code)
+</ol>
+
+Main usages are to have production and development environments.
+Can deploy an application version to production after it has been tested.
+
+#### Deploying an Application with Elastic Beanstalk
+
+<ol>
+<li>Elastic Beanstalk - Create application
+<li>Name application
+<li>Select platform e.g. Node and version
+<li>Use sample code or upload code (eg offline application)
+<li>
+<li>Create application
+<li>Navigate to Network and set the correct VPC
+<li>Navigate to Instances and set security groups for the EC2 instances
+<li>Navigate to Security and select key-pair with IAM role
+<li>Navigate to Capacity and select environment type as 'Load-Balanced'
+<li>Navigate to Load Balancer and add the info for load balancing e.g. ports as before
+<li>In reality, a new stack on CloudFront is created and launched
+</ol>
+
+#### Configuring Permissions for Elastic Beanstalk
+
+Add RSD and DynamoDB policies to EC2 IAM role, enabling the databases to be used.
+To do this, follow below:
+
+<ol>
+<li>Navigate to IAM -> Roles -> Specified EC2 role
+<li>Navigate to Permissions
+<li>Attach a Policy related to RDS and DynamoDB
+<li>Attach a Policy related to Elastic Beanstalk (AWSElasticBeanstalkWebTier) to push logs etc
+<li>Navigate to RDS and select database instance
+<li>Navigate to Security Group and select relevant group
+<li>Modify inbound rules to give access to internal IP (EC2 security group) with database as type
+</ol>
+
+To restart an instance to apply changes like this, Elastic Beanstalk can be used.
+Navigate to application - Actions - Restart.
