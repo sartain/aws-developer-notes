@@ -895,7 +895,6 @@ Can deploy an application version to production after it has been tested.
 <li>Name application
 <li>Select platform e.g. Node and version
 <li>Use sample code or upload code (eg offline application)
-<li>
 <li>Create application
 <li>Navigate to Network and set the correct VPC
 <li>Navigate to Instances and set security groups for the EC2 instances
@@ -922,3 +921,26 @@ To do this, follow below:
 
 To restart an instance to apply changes like this, Elastic Beanstalk can be used.
 Navigate to application - Actions - Restart.
+
+## Small Case Study Examples
+
+### FC Barcelona
+
+FC Barcelona running websites, mobile apps, social media.
+Setup:
+
+<ul>
+<li>Route 53 for DNS name resolution
+<li>CloudFront for content delivery network (media and assets)
+<li>S3 for scalable assets and media documents storage
+<li>EC2 with Elastic Load Balancing and Auto Scaling for: Dynamic generated HTML and XML pages
+<li>Cloudwatch for alarm and monitoring
+<li>Simple Notification Service for platform notifications
+<li>Relational Database Service for database (mySQL)
+<li>CloudFormation for automation and provisioning
+</ul>
+
+CloudFormation is of benefit for one-click deployment of an entire infrastructure.
+Elastic Cloud solution handles peaks, e.g. football team during matches.
+Supports a large amount of content (6,000 pages and 12,000 photographs).
+Other case studies enable services to be added or removed easily.
