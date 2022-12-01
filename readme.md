@@ -922,6 +922,129 @@ To do this, follow below:
 To restart an instance to apply changes like this, Elastic Beanstalk can be used.
 Navigate to application - Actions - Restart.
 
+### CloudFront and ElastiCache
+
+Aims to reduce latency, especially if data centres are located away from users.
+
+#### CloudFront
+
+The request moves to CloudFront, where the closest 'edge' location serves the content.
+A set of content edged with CloudFront is called a 'distribution'.
+A distribution provides content from 1+ origins like S3 buckets.
+There are fine controls over caching behaviour e.g. time to live for content.
+
+#### Creating a CloudFront distribution
+
+<ol>
+<li>Set origin for the distribution e.g. Elastic Load Balancer
+<li>Set any other configurations
+<li>Modify default Cache behaviour
+<li>An example is to redirect HTTP to HTTPS
+<li>Can also allow additional HTTP methods like GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
+<li>Option to set a caching policy with information like time to live
+<li>Caching policy can contin information on Query Strings and Cookies
+<li>In Settings - Price class - Select edge locations to use
+</ol>
+
+#### Configuring a CloudFront distribution
+
+There is an option to add additional origins. This would enable multiple applications to use the same cache.
+Additional behaviours can be added for different path patterns e.g. /pizza or /login.
+An example is :
+
+<ol>
+<li>Setup a new behaviour
+<li>Enter the path pattern e.g. pizza/*
+<li>Set origin group e.g. load balancer
+<li>Redirect HTTP to HTTPS for more security
+<li>Set 'GET, HEAD' as only HTTP methods to prevent caching 'PUT' calls
+<li>Set an additional Cache policy to increase the time to live, useful for content like images which are unlikely to change
+<li>Ability to view metrics on the CloudFront cache to understand and monitor
+<li>
+</ol>
+
+#### ElastiCache Overview
+
+In-memory cache data stores are used (e.g. Redis, Memchaced) to serve content quickly.
+Very similar to RDS in instrumentation, it is a managed service for in-memory cache datastore.
+Provides:
+
+<ul>
+<li>Managed maintenance, upgrades etc.
+<li>Automatic read replicas
+<li>Simple node management and scalability
+</ul>
+
+ElastiCache structure involves a collection of nodes running a single cache instance.
+Memcache clusters have 1-20 nodes, a node is an individual EC2 instance running the caching software.
+Redis structure involves a cluster with 1 node and up to 6 read replicas.
+This enables additional scalability with Redis which is the preferred option.
+
+#### Configuring a Redis structure in ElastiCache
+
+<ol>
+<li>Add a security group to accept inbound port (6379 in example) with EC2 as the source security group
+<li>Create ElastiCache cluster -> Redis engine
+<li>Name cluster and select port (same as used for security group)
+<li>Can enable replication in the production settings
+<li>Select node type (EC2 instance)
+<li>In advanced, create cache subnet group
+<li>Enables VPC to host ElastiCache clusters
+<li>
+</ol>
+
+#### ElastiCache in Code
+
+In the start server section:
+
+```JavaScript
+async function startServer () {
+  const server = Hapi.Server({
+    port: 3000,
+    cache: [
+      {
+        name: 'redis',
+        provider: {
+          constructor: require('@hapi/catbox-redis')
+          options: {
+            partition: 'cache'
+            host: 'primary endpoint from elasticache in AWS without colon and port e.g. pizza-cluster.awsz6d.0001.use2.cache.amazonaws.com'
+          }
+        }
+      }
+    ]
+  })
+}
+```
+
+In the plugins.js Setup Cache
+
+```JavaScript
+const cache = server.cache({
+  cache: 'redis', //Same name as cache in startserver above
+  segment: 'sessions',
+  expiresIn: 24 * 60 * 60 * 1000
+})
+```
+
+#### Giving App permission to use ElastiCache
+
+Modify IAM role and attach an 'elasticache' policy.
+
+#### Cleaning up AWS resources
+
+Delete:
+
+<ul>
+<li>ElastiCache: Cluster, Backups, Subnet Group
+<li>ElasticBeanstalk: Application [also deletes environment and resources]
+<li>DynamoDB: Tables
+<li>RDS: Database Instances without taking final snapshot or backups
+<li>S3: Empty Bucket, then delete
+<li>EC2: Load Balancer and any target groups, Auto Scaling Group, Launch Template Instances, Elastic IP address, AMIs, Keypairs, EBS Snapshots, Security Groups [may need to delete inbound rules first]
+<li>VPC: VPC
+</ul>
+
 ## Small Case Study Examples
 
 ### FC Barcelona
