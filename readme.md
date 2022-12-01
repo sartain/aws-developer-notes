@@ -1045,6 +1045,8 @@ Delete:
 <li>VPC: VPC
 </ul>
 
+---
+
 ## Small Case Study Examples
 
 ### FC Barcelona
@@ -1067,6 +1069,8 @@ CloudFormation is of benefit for one-click deployment of an entire infrastructur
 Elastic Cloud solution handles peaks, e.g. football team during matches.
 Supports a large amount of content (6,000 pages and 12,000 photographs).
 Other case studies enable services to be added or removed easily.
+
+---
 
 ## Designing and Developing with AWS
 
