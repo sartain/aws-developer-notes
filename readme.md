@@ -1067,3 +1067,61 @@ CloudFormation is of benefit for one-click deployment of an entire infrastructur
 Elastic Cloud solution handles peaks, e.g. football team during matches.
 Supports a large amount of content (6,000 pages and 12,000 photographs).
 Other case studies enable services to be added or removed easily.
+
+## Designing and Developing with AWS
+
+### Intro
+
+#### Service Domains in AWS
+
+Services are grouped into domains e.g. storage and security.
+Compute: Runs code that you provide e.g. EC2, Lambda, Elastic Beanstalk, Batch.
+Storage: S3, EFS, Storage Gateway, Glacier.
+Database: RDS, DynamoDB, ElastiCache, DocumentDB.
+Networking and CDN: VPC, CloudFront, API Gateway, Route 53
+DevTools: CodeStar, CodeCommit, CodeBuild, CodeDeploy, CodePipeeline, X-Ray
+Management: CloudWatch, CloudFormation, CloudTrail
+Security: IAM, Certificate Manager, Key manager
+Analytics: Redshift, EMR, OpenSearch, Kinesis
+Application Integration: SNS, SQS, SWF, Step Functions
+
+#### Exam Prep
+
+Requires:
+
+<ul>
+<li>Knowledge of AWS services
+<li>Options and details of each service
+<li>Different problems and scenarios when using each service
+</ul>
+
+Contains:
+
+<ul>
+<li>Multiple Choice Questions
+<li>Service specific topic, detail or limit
+<li>Debugging and architecture
+<li>Likely: EC2, S3, DynamoDB
+</ul>
+
+Preparation:
+
+<ul>
+<li>Example projects in AWS
+<li>Working with AWS services and being familiar with how they work
+<li>Complete the example project given the notes above and gain familiarity, referring to course content if required.
+</ul>
+
+Budget:
+
+<ol>
+<li>Ensure an alert is set when a charge is reached
+<li>AWS Budgets can use this
+<li>Select Cost Budget
+<li>Billed monthly so use monthly code, can set recurring too
+<li>Set a fixed budget with an amount small enough to detect something has been left on
+<li>Can set tags in budgeting with 'budgeting scope'
+<li>Name the budget and configure an alert with a threshold, allows warning before reaching.
+</ol>
+
+### Launching Instances
